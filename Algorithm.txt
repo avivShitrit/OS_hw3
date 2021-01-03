@@ -1,0 +1,37 @@
+
+job = (rows, phase)
+
+Game{
+	private:
+		PCQueue
+		Feild* curr, next = malloc(filed size)
+
+
+}
+
+init_game(){
+	1.create two fields
+	2.create N threads
+	3.start_threads
+}
+
+step(){
+	1. push phase1 jobs to queue - each batch of rows is a job, (batch_size = input_rows / num_of_workers)
+	2. lock until PCQueue empty
+	3. swap cur and nxt fields
+	4. push phase2 jobs to queue
+	5. lock until PCQueue empty
+	6. swap cur and nxt fields
+}
+
+
+Thread{
+	workload{
+		while(1){
+			job = PCQueue.pop()
+			if(phase 1)
+				do job on next field
+			if(phase 2)
+		}
+	}
+}
