@@ -43,9 +43,14 @@ using std::cout;
 using std::cerr;
 using std::endl;
 
+typedef enum {PHASE1, PHASE2} Phase;
 typedef unsigned int uint;
 typedef vector<vector<uint>> int_mat; // Use this as your Game Field
-
+typedef struct {
+    Phase phase;
+    int start_row;
+    int end_row;
+} Job;
 /*--------------------------------------------------------------------------------
 								  Defines & Macros
 --------------------------------------------------------------------------------*/
