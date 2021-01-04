@@ -1,12 +1,11 @@
 #include "Game.hpp"
-
+#include "utils.hpp"
 
 static const char *colors[7] = {BLACK, RED, GREEN, YELLOW, BLUE, MAGENTA, CYAN};
 /*--------------------------------------------------------------------------------
 								
 --------------------------------------------------------------------------------*/
 void Game::run() {
-
 	_init_game(); // Starts the threads and all other variables you need
 	print_board("Initial Board");
 	for (uint i = 0; i < m_gen_num; ++i) {
@@ -21,8 +20,16 @@ void Game::run() {
 }
 
 void Game::_init_game() {
-
 	// Create game fields - Consider using utils:read_file, utils::split
+    vector<vector<string>> data;
+	for(auto line : utils::read_lines(this->init_params.filename)){
+        data.push_back(utils::split(line, ' '));
+	}
+	this->num_of_rows = data.size();
+	this->num_of_columns = data[0].size();
+	this->curr = new int_mat;
+    this->next = new int_mat;
+    _fill_curr_board(&data);
 	// Create & Start threads
 	// Testing of your implementation will presume all threads are started here
 }
@@ -35,11 +42,25 @@ void Game::_step(uint curr_gen) {
 }
 
 void Game::_destroy_game(){
-	// Destroys board and frees all threads and resources 
+	// Destroys board and frees all threads and resources
+    delete this->curr;
+    delete this->next;
+    this->curr = nullptr;
+    this->next = nullptr;
 	// Not implemented in the Game's destructor for testing purposes. 
 	// All threads must be joined here
 	for (uint i = 0; i < m_thread_num; ++i) {
         m_threadpool[i]->join();
+    }
+}
+
+
+void Game::_fill_curr_board(vector<vector<string>>* data) {
+    for(int row_idx =0; row_idx<this->num_of_rows; row_idx++){
+        for(int column_idx =0; column_idx<this->num_of_columns; column_idx++){
+            string tmp = (*data)[row_idx][column_idx];
+            (*this->curr)[row_idx][column_idx] = std::atoi(tmp);
+        }
     }
 }
 
@@ -65,6 +86,13 @@ inline void Game::print_board(const char* header) {
 			usleep(GEN_SLEEP_USEC);
 	}
 
+}
+
+Game::Game(game_params params)  {
+    this->init_params = params;
+    this->m_gen_num = params.n_gen;
+    this->interactive_on = params.interactive_on;
+    this->print_on = params.print_on;
 }
 
 

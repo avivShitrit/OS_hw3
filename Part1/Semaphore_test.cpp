@@ -4,8 +4,8 @@
 
 #include "Semaphore.hpp"
 
-static const int N = 20;
-static const int Z = 1000;
+static const int N = 40;
+static const int Z = 2000000;
 static int COUNTER = 0;
 
 
@@ -27,7 +27,11 @@ int main(){
     for(int i = 0; i < N; i++) {
         pthread_create(&threads[i], nullptr,thread_func,&sem);
     }
-
+    sem.count(1);
+    if(COUNTER < N*Z){
+        cout<<"Wrong!, counter = "<<COUNTER<<endl;
+    }
+    cout<<"pass count condition";
     for(int i = 0; i < N; i++) {
         pthread_join(threads[i], nullptr);
     }

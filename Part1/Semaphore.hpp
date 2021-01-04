@@ -13,6 +13,8 @@ public:
 	void up(); // Mark: 1 Thread has left the critical section
 	void down(); // Block untill counter >0, and mark - One thread has entered the critical section.
 
+	void count(unsigned  val);
+
 private:
 	volatile unsigned counter;
     pthread_mutex_t mut_lock;

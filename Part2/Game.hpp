@@ -4,6 +4,7 @@
 #include "../Part1/Headers.hpp"
 #include "Thread.hpp"
 
+
 /*--------------------------------------------------------------------------------
 								  Species colors
 --------------------------------------------------------------------------------*/
@@ -34,7 +35,7 @@ struct game_params {
 class Game {
 public:
 
-	Game(game_params);
+	Game(game_params params);
 	~Game();
 	void run(); // Runs the game
 	const vector<double> gen_hist() const; // Returns the generation timing histogram  
@@ -49,7 +50,9 @@ protected: // All members here are protected, instead of private for testing pur
 	void _step(uint curr_gen); 
 	void _destroy_game(); 
 	inline void print_board(const char* header);
+    void _fill_curr_board(vector<vector<string>>* data);
 
+    game_params init_params;
 	uint m_gen_num; 			 // The number of generations to run
 	uint m_thread_num; 			 // Effective number of threads = min(thread_num, field_height)
 	vector<double> m_tile_hist; 	 // Shared Timing history for tiles: First (2 * m_gen_num) cells are the calculation durations for tiles in generation 1 and so on. 
@@ -59,7 +62,14 @@ protected: // All members here are protected, instead of private for testing pur
 
 	bool interactive_on; // Controls interactive mode - that means, prints the board as an animation instead of a simple dump to STDOUT 
 	bool print_on; // Allows the printing of the board. Turn this off when you are checking performance (Dry 3, last question)
-	
+
+    PCQueue<Job> jobs_pcq;
+
+    int_mat* curr;
+    int_mat* next;
+
+    int num_of_rows;
+    int num_of_columns;
 	// TODO: Add in your variables and synchronization primitives  
 
 };
