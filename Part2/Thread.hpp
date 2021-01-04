@@ -7,7 +7,8 @@ class Thread
 public:
 	Thread(uint thread_id) 
 	{
-		// Only places thread_id 
+		// Only places thread_id
+		m_thread_id = thread_id;
 	} 
 	virtual ~Thread() {} // Does nothing 
 
@@ -15,12 +16,17 @@ public:
 	// Creates the internal thread via pthread_create 
 	bool start()
 	{
+        int res = pthread_create(&m_thread, nullptr, entry_func, nullptr);
+        if (res != 0) return false;
+
+        return true;
 	}
 
 	/** Will not return until the internal thread has exited. */
 	void join()
 	{
-	}
+        pthread_join(m_thread, nullptr);
+    }
 
 	/** Returns the thread_id **/
 	uint thread_id()
@@ -36,5 +42,20 @@ private:
 	static void * entry_func(void * thread) { ((Thread *)thread)->thread_workload(); return NULL; }
 	pthread_t m_thread;
 };
+
+class GameThread : public Thread
+{
+public:
+    GameThread(uint thread_id) : Thread(thread_id) {}
+    void thread_workload() override;
+
+private:
+    Job m_job;
+    int_mat curr;
+    int_mat next;
+
+
+};
+
 
 #endif

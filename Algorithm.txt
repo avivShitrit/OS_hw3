@@ -35,3 +35,5 @@ Thread{
 		}
 	}
 }
+
+workload(Job, curr, next, PCQueue)
