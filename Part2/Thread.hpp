@@ -25,7 +25,7 @@ public:
 	/** Will not return until the internal thread has exited. */
 	void join()
 	{
-        pthread_join(m_thread, nullptr);
+        pthread_join(m_thread, nullptr);  // is this enough?!
     }
 
 	/** Returns the thread_id **/
@@ -46,16 +46,46 @@ private:
 class GameThread : public Thread
 {
 public:
-    GameThread(uint thread_id) : Thread(thread_id) {}
-    void thread_workload() override;
+    GameThread(uint thread_id, int_mat **curr, int_mat **next, PCQueue<Job>& jobs) :
+    Thread(thread_id),
+    curr(curr),
+    next(next),
+    jobs_queue(jobs)
+    {}
+
+    void thread_workload() override {
+        Job curr_jobs;
+        while (1) {
+            curr_jobs = jobs_queue.pop();
+            if (curr_jobs.phase == PHASE1) {
+
+            } else if (curr_jobs.phase == PHASE2) {
+
+            }
+
+        }
+    }
 
 private:
-    Job m_job;
-    int_mat curr;
-    int_mat next;
+    int_mat **curr;
+    int_mat **next;
+    PCQueue<Job> jobs_queue;
+
+    void phase1ExecuteJob(Job job);
+    void phase2ExecuteJob(Job job);
 
 
 };
+
+void GameThread::phase1ExecuteJob(Job job) {
+    int n = (**curr)[0].size();
+    int_mat curr_field =
+    for (int i = job.start_row; i < job.end_row; ++i) {
+        for (int j = 0; j < n; ++j) {
+            if ()
+        }
+    }
+}
 
 
 #endif
