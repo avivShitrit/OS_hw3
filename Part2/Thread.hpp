@@ -83,10 +83,10 @@ private:
 
 void GameThread::phase1ExecuteJob(Job job) {
     int n = (**curr)[0].size();
-    int_mat curr_field =
+//    int_mat curr_field =
     for (int i = job.start_row; i < job.end_row; ++i) {
         for (int j = 0; j < n; ++j) {
-            if ()
+
         }
     }
 }
