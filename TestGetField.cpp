@@ -7,20 +7,32 @@
 
 int main(){
     string file_name = "/mnt/c/Users/Aviv/Documents/operating_systems_git/OS_hw3/tiny.txt";
+    cout<<(8/3)<<endl;
     vector<vector<string>> data;
     for(auto line : utils::read_lines(file_name)){
-        data.push_back(utils::split(line, ' '));
+        if(line != "\r") {
+            data.push_back(utils::split(line, ' '));
+        }
     }
     auto data_ptr = &data;
     int rows = data.size();
     int columns = data[0].size();
-    auto curr = new int_mat;
+    auto curr = new int_mat();
     cout<<"rows = "<<rows<<", columns = "<<columns<<endl;
-    for(int row_idx =0; row_idx<this->num_of_rows; row_idx++){
-        for(int column_idx =0; column_idx<this->num_of_columns; column_idx++){
-            string tmp = (*data_ptr)[row_idx][column_idx];
-            (*curr)[row_idx][column_idx] = std::stoi(tmp);
+    vector<uint> tmp;
+    for(auto line : *data_ptr){
+        for(int i=0; i<columns; i++) {
+            string word = line[i];
+            tmp.push_back(std::stoi(word, nullptr, 10));
         }
+        curr->push_back(tmp);
+        tmp.clear();
+    }
+    for(auto line : *curr){
+        for(auto word : line){
+            cout<<word<<",";
+        }
+        cout<<endl;
     }
     cout<<"rows = "<<rows<<", columns = "<<columns<<endl;
 }

@@ -2,8 +2,10 @@
 #define __GAMERUN_H
 
 #include "../Part1/Headers.hpp"
+#include "../Part1/PCQueue.hpp"
 #include "Thread.hpp"
-
+#include "utils.hpp"
+#include "Barrier.hpp"
 
 /*--------------------------------------------------------------------------------
 								  Species colors
@@ -63,13 +65,15 @@ protected: // All members here are protected, instead of private for testing pur
 	bool interactive_on; // Controls interactive mode - that means, prints the board as an animation instead of a simple dump to STDOUT 
 	bool print_on; // Allows the printing of the board. Turn this off when you are checking performance (Dry 3, last question)
 
-    PCQueue<Job> jobs_pcq;
+    PCQueue<Job>* jobs_pcq;
 
     int_mat* curr;
     int_mat* next;
 
-    int num_of_rows;
-    int num_of_columns;
+    uint num_of_rows;
+    uint num_of_columns;
+
+    Barrier* barrier;
 	// TODO: Add in your variables and synchronization primitives  
 
 };

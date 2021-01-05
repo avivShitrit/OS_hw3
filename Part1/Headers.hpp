@@ -51,9 +51,9 @@ typedef unsigned int uint;
 typedef vector<vector<uint>> int_mat; // Use this as your Game Field
 typedef struct {
     Phase phase;
-    int start_row;
-    int end_row;
-} Job;
+    uint start_row;
+    uint end_row;
+} Job
 /*--------------------------------------------------------------------------------
 								  Defines & Macros
 --------------------------------------------------------------------------------*/

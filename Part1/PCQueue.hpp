@@ -16,6 +16,8 @@ public:
 	// Assumes single producer 
 	void push(const T& item);
 
+	//not sync protected, simple if(items.size()>0) return false;
+	bool empty();
     PCQueue();
 
 private:
@@ -81,6 +83,13 @@ void PCQueue<T>::push(const T &item) {
         pthread_cond_signal(&producer_allowed);
     }
     pthread_mutex_unlock(&global_lock);
+}
+
+template<typename T>
+bool PCQueue<T>::empty() {
+    if(items.size()>0)
+        return false;
+    return true;
 }
 
 //template<typename T>
