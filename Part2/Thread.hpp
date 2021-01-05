@@ -46,29 +46,8 @@ private:
 class GameThread : public Thread
 {
 public:
-    GameThread(uint thread_id, int_mat **curr, int_mat **next, PCQueue<Job>& jobs) :
-    Thread(thread_id),
-    curr(curr),
-    next(next),
-    jobs_queue(jobs)
-    {}
-
-    void thread_workload() override {
-        Job curr_jobs;
-        while (1) {
-            curr_jobs = jobs_queue.pop();
-            if (curr_jobs.phase == PHASE1) {
-                // if dead - calc if alive - go over all neighbours
-                    // if alive - calc dominant species
-                // if alive - calc if stays alive
-                //else dead
-
-            } else if (curr_jobs.phase == PHASE2) {
-                // if alive find species - calc species- round(max(average species))
-            }
-
-        }
-    }
+    GameThread(uint thread_id, int_mat **curr, int_mat **next, PCQueue<Job>& jobs);
+    void thread_workload() override;
 
 private:
     int_mat **curr;
@@ -78,18 +57,7 @@ private:
     void phase1ExecuteJob(Job job);
     void phase2ExecuteJob(Job job);
 
-
 };
-
-void GameThread::phase1ExecuteJob(Job job) {
-    int n = (**curr)[0].size();
-//    int_mat curr_field =
-    for (int i = job.start_row; i < job.end_row; ++i) {
-        for (int j = 0; j < n; ++j) {
-
-        }
-    }
-}
 
 
 #endif
