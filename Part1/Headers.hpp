@@ -28,7 +28,6 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-// m_headers
 #include "PCQueue.hpp"
 #include "Semaphore.hpp"
 /*--------------------------------------------------------------------------------

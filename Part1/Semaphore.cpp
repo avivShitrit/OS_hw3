@@ -61,3 +61,12 @@ void Semaphore::up() {
     DEBUG_MES("up Signaling to condition")
     pthread_cond_signal(&this->cond_var);
 }
+
+void Semaphore::count(unsigned int val) {
+    pthread_mutex_lock(&this->mut_lock);
+    while(this->counter < val) {
+        pthread_cond_wait(&this->cond_var,&this->mut_lock);
+    }
+    pthread_mutex_unlock(&this->mut_lock);
+    pthread_cond_signal(&this->cond_var);
+}
