@@ -20,7 +20,7 @@ public:
 
 private:
 	// Add your class memebers here
-	queue<T, std::deque<T>> items;
+	std::queue<T, std::deque<T>> items;
 
     pthread_mutex_t global_lock;
     pthread_cond_t producer_allowed;

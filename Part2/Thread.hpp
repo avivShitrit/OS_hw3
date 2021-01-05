@@ -58,9 +58,13 @@ public:
         while (1) {
             curr_jobs = jobs_queue.pop();
             if (curr_jobs.phase == PHASE1) {
+                // if dead - calc if alive - go over all neighbours
+                    // if alive - calc dominant species
+                // if alive - calc if stays alive
+                //else dead
 
             } else if (curr_jobs.phase == PHASE2) {
-
+                // if alive find species - calc species- round(max(average species))
             }
 
         }
