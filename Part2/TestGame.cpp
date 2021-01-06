@@ -32,8 +32,8 @@ public:
 };
 
 int main(){
-    string file_name = "/mnt/c/Users/Aviv/Documents/operating_systems_git/OS_hw3/tiny.txt";
-    game_params params = {1, 3, file_name, true, true};
+    string file_name = "/Users/adinakatz/Documents/OneDrive - Technion/semester_5/OS/hw3/wet3/Tools/example_IO_files/tiny.txt";
+    game_params params = {1, 1, file_name, true, true};
     GameTester game_tester(params);
     game_tester.test_one_round();
 }

@@ -29,10 +29,10 @@ void GameThread::thread_workload() {
         this->barrier->increase();
         DEBUG_MES("thread_workload #"+std::to_string(this->m_thread_id)+ ": Got new Job! " + std::to_string(curr_job.phase))
         if (curr_job.phase == PHASE1) {
-            phase1ExecuteJob(curr_job);
-        } else if (curr_job.phase == PHASE2) {
-            phase2ExecuteJob(curr_job);
-        }
+            phase1ExecuteJob(curr_job);}
+//        } else if (curr_job.phase == PHASE2) {
+//            phase2ExecuteJob(curr_job);
+//        }
         DEBUG_MES("thread_workload #"+std::to_string(this->m_thread_id)+ ": decrease()")
         this->barrier->decrease();
         DEBUG_MES("thread_workload #"+std::to_string(this->m_thread_id)+ ": decrease() Done")
@@ -46,6 +46,7 @@ void GameThread::thread_workload() {
 void GameThread::phase1ExecuteJob(Job job) {
     int_mat field = **this->curr;
     int n = field[0].size();
+    DEBUG_MES("phase1 Execute: starting")
     for (uint i = job.start_row; i < job.end_row; ++i) {
         for (int j = 0; j < n; ++j) {
             map<int, int> neighbours; // safe, threads don't share stack
@@ -82,7 +83,11 @@ void GameThread::phase2ExecuteJob(Job job) {
 }
 
 bool GameThread::isCellBorne(map<int, int> &neighbours) {
-    if (neighbours.size() == 3) {
+    int num_of_neighbors = 0;
+    for (auto n : neighbours) {
+        num_of_neighbors += n.second;
+    }
+    if (num_of_neighbors == 3) {
         return true;
     }
     return false;
@@ -123,8 +128,8 @@ void GameThread::setCellDead(int i, int j) {
 }
 
 void GameThread::getCellNeighbours(int row, int col, map<int, int> &neighbours, Job &job) {
-    for (int i = row - 1; i <= i + 1; ++i) {
-        for (int j = col - 1; j <= j + 1; ++j) {
+    for (int i = row - 1; i <= row + 1; ++i) {
+        for (int j = col - 1; j <= col + 1; ++j) {
             if (isInBounds(job.start_row, job.end_row, (**this->curr)[0].size(), i, j)) {
                 int specie = (**this->curr)[i][j];
                 if (neighbours.count(specie) > 0) {
