@@ -104,14 +104,14 @@ void GameThread::setCellSpecie(int i, int j, map<int, int> &neighbours) {
 }
 
 void GameThread::setCellNewSpecie(int i, int j, map<int, int> &neighbours) {
-    int new_specie = (**curr)[i][j];
+    double sum_of_species = (**curr)[i][j];
     int total_num_neighbours = 1;
     for (auto species : neighbours) {
-        new_specie += (species.first * species.second);
+        sum_of_species += (species.first * species.second);
         total_num_neighbours += species.second;
     }
-    new_specie = (new_specie / total_num_neighbours); //todo: round always down?
-    (**next)[i][j] = new_specie;
+    double new_specie = (sum_of_species / total_num_neighbours);
+    (**next)[i][j] = std::round(new_specie);
 }
 
 void GameThread::setCellDead(int i, int j) {
