@@ -30,7 +30,8 @@ void GameThread::thread_workload() {
         DEBUG_MES("thread_workload #"+std::to_string(this->m_thread_id)+ ": Got new Job! " + std::to_string(curr_job.phase))
         if (curr_job.phase == PHASE1) {
             phase1ExecuteJob(curr_job);
-        } else if (curr_job.phase == PHASE2) {
+        }
+        else if (curr_job.phase == PHASE2) {
             phase2ExecuteJob(curr_job);
         }
         DEBUG_MES("thread_workload #"+std::to_string(this->m_thread_id)+ ": decrease()")
@@ -113,7 +114,7 @@ void GameThread::setCellSpecie(int i, int j, map<int, int> &neighbours) {
 }
 
 void GameThread::setCellNewSpecie(int i, int j, map<int, int> &neighbours) {
-    double sum_species = (**curr)[i][j];
+    double sum_species = (**this->curr)[i][j];
     int total_num_neighbours = 1;
     for (auto species : neighbours) {
         sum_species += (species.first * species.second);

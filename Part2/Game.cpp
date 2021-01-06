@@ -62,7 +62,7 @@ void Game::_step(uint curr_gen) {
 
     DEBUG_MES("_step: PHASE1 - Starting to push jobs to Queue")
     for(auto job : jobs){
-        jobs_pcq->push(job);
+        this->jobs_pcq->push(job);
     }
     while(!jobs_pcq->empty()){}
     this->barrier->wait();
@@ -72,7 +72,7 @@ void Game::_step(uint curr_gen) {
     std::swap(this->curr, this->next);
     jobs.clear();
     i=0;
-    for(; i<num_of_rows-job_size; i+=job_size){
+    for(; i < this->num_of_rows - job_size; i += job_size){
         jobs.push_back({PHASE2, i, i+job_size});
     }
     jobs.push_back({PHASE2, i, this->num_of_rows});
@@ -81,7 +81,7 @@ void Game::_step(uint curr_gen) {
     for(auto job : jobs){
         jobs_pcq->push(job);
     }
-    while(!jobs_pcq->empty()){}
+    while(!this->jobs_pcq->empty()){}
     this->barrier->wait();
     DEBUG_MES("_step: PHASE2 - Queue is empty and all jobs finished This generation is over")
 
@@ -115,7 +115,7 @@ void Game::_destroy_game(){
 void Game::_fill_curr_board(vector<vector<string>>* data) {
     vector<uint> tmp;
     for(auto line : *data){
-        for(uint i=0; i<this->num_of_columns; i++) {
+        for(uint i = 0; i < this->num_of_columns; i++) {
             string word = line[i];
             tmp.push_back(std::stoi(word, nullptr, 10));
 
@@ -130,10 +130,10 @@ void Game::_fill_curr_board(vector<vector<string>>* data) {
 --------------------------------------------------------------------------------*/
 inline void Game::print_board(const char* header) {
 
-	if(print_on){ 
+	if(this->print_on){
 
 		// Clear the screen, to create a running animation 
-		if(interactive_on)
+		if(this->interactive_on)
 			system("clear");
 
 		// Print small header if needed
@@ -155,7 +155,7 @@ inline void Game::print_board(const char* header) {
         cout << u8"╚" << string(u8"═") * this->num_of_columns << u8"╝" << endl;
 
 		// Display for GEN_SLEEP_USEC micro-seconds on screen 
-		if(interactive_on)
+		if(this->interactive_on)
 			usleep(GEN_SLEEP_USEC);
 	}
 
