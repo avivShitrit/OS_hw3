@@ -23,7 +23,8 @@ GameThread::GameThread(uint thread_id, int_mat **curr, int_mat **next, PCQueue<J
 
 void GameThread::thread_workload() {
     Job curr_job;
-    while (curr_job.phase != DONE) { //todo - doesn't work for first iteration
+    bool is_done = false;
+    while (!is_done) {
         curr_job = jobs_queue->pop();
         barrier->increase();
         if (curr_job.phase == PHASE1) {
@@ -32,6 +33,9 @@ void GameThread::thread_workload() {
             phase2ExecuteJob(curr_job);
         }
         barrier->decrease();
+        if (curr_job.phase == DONE) {
+            is_done = true;
+        }
     }
 }
 
