@@ -6,7 +6,6 @@
 #include "Semaphore.hpp"
 
 void Semaphore::init_locks(){
-
     this->mut_lock = PTHREAD_MUTEX_INITIALIZER;
     this->cond_var = PTHREAD_COND_INITIALIZER;
     pthread_mutex_init(&this->mut_lock, nullptr);

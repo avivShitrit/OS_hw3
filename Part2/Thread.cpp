@@ -23,26 +23,30 @@ GameThread::GameThread(uint thread_id, int_mat **curr, int_mat **next, PCQueue<J
 
 void GameThread::thread_workload() {
     Job curr_job;
-    bool is_done = false;
-    while (!is_done) {
-        curr_job = jobs_queue->pop();
-        barrier->increase();
+    while (true) {
+        DEBUG_MES("thread_workload #"+std::to_string(this->m_thread_id)+ ": Wating for job")
+        curr_job = this->jobs_queue->pop();
+        this->barrier->increase();
+        DEBUG_MES("thread_workload #"+std::to_string(this->m_thread_id)+ ": Got new Job! " + std::to_string(curr_job.phase))
         if (curr_job.phase == PHASE1) {
             phase1ExecuteJob(curr_job);
         } else if (curr_job.phase == PHASE2) {
             phase2ExecuteJob(curr_job);
         }
-        barrier->decrease();
+        DEBUG_MES("thread_workload #"+std::to_string(this->m_thread_id)+ ": decrease()")
+        this->barrier->decrease();
+        DEBUG_MES("thread_workload #"+std::to_string(this->m_thread_id)+ ": decrease() Done")
         if (curr_job.phase == DONE) {
-            is_done = true;
+            DEBUG_MES("thread_workload #"+std::to_string(this->m_thread_id)+ ": Breaking loop")
+            return;
         }
     }
 }
 
 void GameThread::phase1ExecuteJob(Job job) {
-    int_mat field = **curr;
+    int_mat field = **this->curr;
     int n = field[0].size();
-    for (int i = job.start_row; i < job.end_row; ++i) {
+    for (uint i = job.start_row; i < job.end_row; ++i) {
         for (int j = 0; j < n; ++j) {
             map<int, int> neighbours; // safe, threads don't share stack
             getCellNeighbours(i, j, neighbours, job);
@@ -64,9 +68,9 @@ void GameThread::phase1ExecuteJob(Job job) {
 }
 
 void GameThread::phase2ExecuteJob(Job job) {
-    int_mat field = **curr;
+    int_mat field = **this->curr;
     int n = field[0].size();
-    for (int i = job.start_row; i < job.end_row; ++i) {
+    for (uint i = job.start_row; i < job.end_row; ++i) {
         for (int j = 0; j < n; ++j) {
             map<int, int> neighbours;
             getCellNeighbours(i, j, neighbours, job);
@@ -100,29 +104,29 @@ void GameThread::setCellSpecie(int i, int j, map<int, int> &neighbours) {
             dominant_specie = species.first;
         }
     }
-    (**next)[i][j] = dominant_specie;
+    (**this->next)[i][j] = dominant_specie;
 }
 
 void GameThread::setCellNewSpecie(int i, int j, map<int, int> &neighbours) {
-    double sum_of_species = (**curr)[i][j];
+    int new_specie = (**curr)[i][j];
     int total_num_neighbours = 1;
     for (auto species : neighbours) {
-        sum_of_species += (species.first * species.second);
+        new_specie += (species.first * species.second);
         total_num_neighbours += species.second;
     }
-    double new_specie = (sum_of_species / total_num_neighbours);
-    (**next)[i][j] = std::round(new_specie);
+    new_specie = (new_specie / total_num_neighbours); //todo: round always down?
+    (**this->next)[i][j] = new_specie;
 }
 
 void GameThread::setCellDead(int i, int j) {
-    (**next)[i][j] = DEAD;
+    (**this->next)[i][j] = DEAD;
 }
 
 void GameThread::getCellNeighbours(int row, int col, map<int, int> &neighbours, Job &job) {
     for (int i = row - 1; i <= i + 1; ++i) {
         for (int j = col - 1; j <= j + 1; ++j) {
-            if (isInBounds(job.start_row, job.end_row, (**curr)[0].size(), i, j)) {
-                int specie = (**curr)[i][j];
+            if (isInBounds(job.start_row, job.end_row, (**this->curr)[0].size(), i, j)) {
+                int specie = (**this->curr)[i][j];
                 if (neighbours.count(specie) > 0) {
                     neighbours[specie] += 1;
                 } else {
@@ -134,7 +138,7 @@ void GameThread::getCellNeighbours(int row, int col, map<int, int> &neighbours, 
 }
 
 void GameThread::setCellAlive(int i, int j) {
-    (**next)[i][j] = (**curr)[i][j];
+    (**this->next)[i][j] = (**this->curr)[i][j];
 }
 
 

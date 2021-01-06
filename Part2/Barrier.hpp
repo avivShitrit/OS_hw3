@@ -6,15 +6,15 @@
 #define WET3_BARRIER_HPP
 
 #include <semaphore.h>
+#include "../Part1/Semaphore.hpp"
 
 class Barrier {
 private:
-    unsigned int N; // number of threads
-    unsigned int counter;
-
-    sem_t  barrier;
-    sem_t checkpoint;
-    pthread_mutex_t lock;
+    uint num_of_threads;
+    volatile int counter; // can be negative
+    pthread_mutex_t mut_lock;
+    pthread_cond_t cond_var;
+    void init_locks();
 public:
     Barrier(unsigned int num_of_threads);
     void wait();

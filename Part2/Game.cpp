@@ -28,18 +28,17 @@ void Game::_init_game() {
 	this->num_of_rows = data.size();
 	this->num_of_columns = data[0].size();
 	this->curr = new int_mat;
-    this->next = new int_mat;
+    this->next = new int_mat(this->num_of_rows, vector<uint>(this->num_of_columns, 0));
     _fill_curr_board(&data);
 
     //Create Game structures
     this->m_thread_num = num_of_rows<this->init_params.n_thread ? num_of_rows : this->init_params.n_thread;
     this->jobs_pcq = new PCQueue<Job>();
-    //TODO: Complete Barrier implementation
     this->barrier = new Barrier(this->m_thread_num);
 
     //Create and start Threads
-    for(int i=0; i < this->m_thread_num + 1; i++){
-        Thread* tmp_ptr = new GameThread(i, &this->curr, &this->next, jobs_pcq, barrier);
+    for(uint i=0; i < this->m_thread_num; i++){
+        GameThread* tmp_ptr = new GameThread(i, &this->curr, &this->next, this->jobs_pcq, this->barrier);
         bool result = tmp_ptr->start();
         if(!result){
             cerr<<"Problem in Thread->start() number:"<<i<<" Shutting done...";
@@ -91,16 +90,23 @@ void Game::_step(uint curr_gen) {
 
 void Game::_destroy_game(){
 	// Destroys board and frees all threads and resources
+	DEBUG_MES("_destroy_game: Sending Done to all threads")
+	for(uint i=0; i<this->m_thread_num; i++){
+        this->jobs_pcq->push({DONE, 0,0});
+	}
+	DEBUG_MES("_destroy_game: Wating for all threads to join")
+    for(auto thread : this->m_threadpool){
+        thread->join();
+    }
+    DEBUG_MES("_destroy_game: All Threads joined successfully")
     delete this->curr;
     delete this->next;
     this->curr = nullptr;
     this->next = nullptr;
-    for(auto thread : this->m_threadpool){
-        thread->join();
-    }
 	for(auto thread : this->m_threadpool){
 	    delete thread;
 	}
+	this->m_threadpool.clear();
     delete this->jobs_pcq;
 	delete this->barrier;
 }
@@ -109,9 +115,10 @@ void Game::_destroy_game(){
 void Game::_fill_curr_board(vector<vector<string>>* data) {
     vector<uint> tmp;
     for(auto line : *data){
-        for(int i=0; i<this->num_of_columns; i++) {
+        for(uint i=0; i<this->num_of_columns; i++) {
             string word = line[i];
             tmp.push_back(std::stoi(word, nullptr, 10));
+
         }
         curr->push_back(tmp);
         tmp.clear();
@@ -166,6 +173,9 @@ Game::Game(game_params params){
     this->num_of_rows = -1;
     this->num_of_columns = -1;
     this->barrier = nullptr;
+}
+
+Game::~Game() {
 }
 
 uint Game::thread_num() const {
