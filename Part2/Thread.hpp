@@ -47,6 +47,7 @@ class GameThread : public Thread
 {
 public:
     GameThread(uint thread_id, int_mat **curr, int_mat **next, PCQueue<Job>& jobs);
+    ~GameThread() override = default;
     void thread_workload() override;
 
 private:
