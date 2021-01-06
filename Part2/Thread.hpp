@@ -2,6 +2,7 @@
 #define __THREAD_H
 
 #include "../Part1/Headers.hpp"
+
 class Thread
 {
 public:
@@ -46,18 +47,24 @@ private:
 class GameThread : public Thread
 {
 public:
-    GameThread(uint thread_id, int_mat **curr, int_mat **next, PCQueue<Job>& jobs);
+    GameThread(uint thread_id, int_mat **curr, int_mat **next, PCQueue<Job> *jobs, Barrier *barrier);
     ~GameThread() override = default;
     void thread_workload() override;
 
 private:
     int_mat **curr;
     int_mat **next;
-    PCQueue<Job> jobs_queue;
+    PCQueue<Job> *jobs_queue;
+    Barrier *barrier;
 
     void phase1ExecuteJob(Job job);
     void phase2ExecuteJob(Job job);
 
+    bool isCellBroughtToLife(int row, int col, map<int, int> &neighbours, Job &job);
+    bool doesCellStayAlive(int i, int j);
+    void setCellSpecie(int i, int j, map<int, int> &neighbours);
+    void setCellNewSpecie(int i, int j);
+    void setCellDead(int i, int j);
 };
 
 

@@ -11,12 +11,15 @@ class Barrier {
 private:
     unsigned int N; // number of threads
     unsigned int counter;
+
     sem_t  barrier;
     sem_t checkpoint;
     pthread_mutex_t lock;
 public:
     Barrier(unsigned int num_of_threads);
     void wait();
+    void increase();
+    void decrease();
     ~Barrier();
 };
 

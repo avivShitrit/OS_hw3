@@ -9,6 +9,7 @@
 #include <queue>
 #include <list>
 #include <iterator>
+#include <map>
 
 // Streams  & Filesystem:
 #include <fstream>
@@ -30,12 +31,14 @@
 
 #include "PCQueue.hpp"
 #include "Semaphore.hpp"
+#include "Barrier.hpp"
 /*--------------------------------------------------------------------------------
 									   Typedefs
 --------------------------------------------------------------------------------*/
 using std::string;
 using std::vector;
 using std::queue;
+using std::map;
 
 using std::ostream;
 using std::ifstream;

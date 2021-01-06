@@ -39,7 +39,7 @@ void Game::_init_game() {
 
     //Create and start Threads
     for(int i=0; i<this->m_thread_num; i++){
-        Thread* tmp_ptr = new GameThread(i, &this->curr, &this->next, *jobs_pcq);
+        Thread* tmp_ptr = new GameThread(i, &this->curr, &this->next, jobs_pcq, barrier);
         bool result = tmp_ptr->start();
         if(!result){
             cerr<<"Problem in Thread->start() number:"<<i<<" Shutting done...";
