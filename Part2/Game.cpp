@@ -38,7 +38,7 @@ void Game::_init_game() {
     this->barrier = new Barrier(this->m_thread_num);
 
     //Create and start Threads
-    for(int i=0; i < this->m_thread_num; i++){
+    for(int i=0; i < this->m_thread_num + 1; i++){
         Thread* tmp_ptr = new GameThread(i, &this->curr, &this->next, jobs_pcq, barrier);
         bool result = tmp_ptr->start();
         if(!result){
