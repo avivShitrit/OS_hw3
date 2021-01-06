@@ -1,5 +1,4 @@
 #include "Game.hpp"
-#include "utils.hpp"
 
 static const char *colors[7] = {BLACK, RED, GREEN, YELLOW, BLUE, MAGENTA, CYAN};
 /*--------------------------------------------------------------------------------
@@ -23,6 +22,7 @@ void Game::_init_game() {
 	// Create game fields - Consider using utils:read_file, utils::split
     vector<vector<string>> data;
 	for(auto line : utils::read_lines(this->init_params.filename)){
+	    if(line != "\r")
         data.push_back(utils::split(line, ' '));
 	}
 	this->num_of_rows = data.size();
@@ -30,15 +30,63 @@ void Game::_init_game() {
 	this->curr = new int_mat;
     this->next = new int_mat;
     _fill_curr_board(&data);
-	// Create & Start threads
-	// Testing of your implementation will presume all threads are started here
+
+    //Create Game structures
+    this->m_thread_num = num_of_rows<this->init_params.n_thread ? num_of_rows : this->init_params.n_thread;
+    this->jobs_pcq = new PCQueue<Job>();
+    //TODO: Complete Barrier implementation
+    this->barrier = new Barrier(this->m_thread_num);
+
+    //Create and start Threads
+    for(int i=0; i<this->m_thread_num; i++){
+        Thread* tmp_ptr = new GameThread(i, &this->curr, &this->next, *jobs_pcq);
+        bool result = tmp_ptr->start();
+        if(!result){
+            cerr<<"Problem in Thread->start() number:"<<i<<" Shutting done...";
+            _destroy_game();
+
+            exit(-1);
+        }
+        m_threadpool.push_back(tmp_ptr);
+    }
 }
 
 void Game::_step(uint curr_gen) {
-	// Push jobs to queue
-	// Wait for the workers to finish calculating 
-	// Swap pointers between current and next field 
-	// NOTE: Threads must not be started here - doing so will lead to a heavy penalty in your grade 
+    /** 1. init phase1 **/
+    uint job_size = this->num_of_rows / this->m_thread_num;
+    vector<Job> jobs;
+    uint i=0;
+    for(; i<num_of_rows-job_size; i+=job_size){
+        jobs.push_back({PHASE1, i, i+job_size});
+    }
+    jobs.push_back({PHASE1, i, this->num_of_rows});
+
+    DEBUG_MES("_step: PHASE1 - Starting to push jobs to Queue")
+    for(auto job : jobs){
+        jobs_pcq->push(job);
+    }
+    while(!jobs_pcq->empty()){}
+    this->barrier->wait();
+    DEBUG_MES("_step: PHASE1 - Queue is empty and all jobs finished, moving to Phase 2")
+
+    /** 2. init phase2 **/
+    std::swap(this->curr, this->next);
+    jobs.clear();
+    i=0;
+    for(; i<num_of_rows-job_size; i+=job_size){
+        jobs.push_back({PHASE2, i, i+job_size});
+    }
+    jobs.push_back({PHASE2, i, this->num_of_rows});
+
+    DEBUG_MES("_step: PHASE2 - Starting to push jobs to Queue")
+    for(auto job : jobs){
+        jobs_pcq->push(job);
+    }
+    while(!jobs_pcq->empty()){}
+    this->barrier->wait();
+    DEBUG_MES("_step: PHASE2 - Queue is empty and all jobs finished This generation is over")
+
+    std::swap(this->curr, this->next);
 }
 
 void Game::_destroy_game(){
@@ -47,20 +95,26 @@ void Game::_destroy_game(){
     delete this->next;
     this->curr = nullptr;
     this->next = nullptr;
-	// Not implemented in the Game's destructor for testing purposes. 
-	// All threads must be joined here
-	for (uint i = 0; i < m_thread_num; ++i) {
-        m_threadpool[i]->join();
+    for(auto thread : this->m_threadpool){
+        thread->join();
     }
+	for(auto thread : this->m_threadpool){
+	    delete thread;
+	}
+    delete this->jobs_pcq;
+	delete this->barrier;
 }
 
 
 void Game::_fill_curr_board(vector<vector<string>>* data) {
-    for(int row_idx =0; row_idx<this->num_of_rows; row_idx++){
-        for(int column_idx =0; column_idx<this->num_of_columns; column_idx++){
-            string tmp = (*data)[row_idx][column_idx];
-            (*this->curr)[row_idx][column_idx] = std::atoi(tmp);
+    vector<uint> tmp;
+    for(auto line : *data){
+        for(int i=0; i<this->num_of_columns; i++) {
+            string word = line[i];
+            tmp.push_back(std::stoi(word, nullptr, 10));
         }
+        curr->push_back(tmp);
+        tmp.clear();
     }
 }
 
@@ -78,8 +132,20 @@ inline void Game::print_board(const char* header) {
 		// Print small header if needed
 		if (header != nullptr)
 			cout << "<------------" << header << "------------>" << endl;
-		
-		// TODO: Print the board 
+
+        cout << u8"╔" << string(u8"═") * this->num_of_columns << u8"╗" << endl;
+        for (uint i = 0; i < this->num_of_rows; ++i) {
+            cout << u8"║";
+            for (uint j = 0; j < this->num_of_columns; ++j) {
+                uint val = (*this->curr)[i][j];
+                if (val > 0)
+                    cout << colors[val % 7] << u8"█" << RESET;
+                else
+                    cout << u8"░";
+            }
+            cout << u8"║" << endl;
+        }
+        cout << u8"╚" << string(u8"═") * this->num_of_columns << u8"╝" << endl;
 
 		// Display for GEN_SLEEP_USEC micro-seconds on screen 
 		if(interactive_on)
@@ -88,11 +154,22 @@ inline void Game::print_board(const char* header) {
 
 }
 
-Game::Game(game_params params)  {
+Game::Game(game_params params){
     this->init_params = params;
     this->m_gen_num = params.n_gen;
     this->interactive_on = params.interactive_on;
     this->print_on = params.print_on;
+    this->m_thread_num = 0;
+    this->jobs_pcq = nullptr;
+    this->curr = nullptr;
+    this->next = nullptr;
+    this->num_of_rows = -1;
+    this->num_of_columns = -1;
+    this->barrier = nullptr;
+}
+
+uint Game::thread_num() const {
+    return this->m_thread_num;
 }
 
 
