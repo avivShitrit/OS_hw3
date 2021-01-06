@@ -23,7 +23,7 @@ GameThread::GameThread(uint thread_id, int_mat **curr, int_mat **next, PCQueue<J
 
 void GameThread::thread_workload() {
     Job curr_job;
-    while (1) {
+    while (curr_job.phase != DONE) {
         curr_job = jobs_queue->pop();
         barrier->increase();
         if (curr_job.phase == PHASE1) {
@@ -40,7 +40,7 @@ void GameThread::phase1ExecuteJob(Job job) {
     int n = field[0].size();
     for (int i = job.start_row; i < job.end_row; ++i) {
         for (int j = 0; j < n; ++j) {
-            map<int, int> neighbours;
+            map<int, int> neighbours; // safe, threads don't share stack
             getCellNeighbours(i, j, neighbours, job);
             if (field[i][j] == DEAD) {
                 if (isCellBorne(neighbours)) {
