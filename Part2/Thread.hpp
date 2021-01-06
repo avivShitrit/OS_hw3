@@ -17,7 +17,7 @@ public:
 	// Creates the internal thread via pthread_create 
 	bool start()
 	{
-        int res = pthread_create(&m_thread, nullptr, entry_func, nullptr);
+        int res = pthread_create(&m_thread, nullptr, entry_func, this);
         if (res != 0) return false;
 
         return true;

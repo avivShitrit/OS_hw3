@@ -16,7 +16,7 @@ public:
 	void count(unsigned  val);
 
 private:
-	volatile unsigned counter;
+	volatile uint counter;
     pthread_mutex_t mut_lock;
     pthread_cond_t cond_var;
     void init_locks();

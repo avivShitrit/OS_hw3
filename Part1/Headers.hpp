@@ -31,7 +31,7 @@
 
 #include "PCQueue.hpp"
 #include "Semaphore.hpp"
-#include "Barrier.hpp"
+#include "../Part2/Barrier.hpp"
 /*--------------------------------------------------------------------------------
 									   Typedefs
 --------------------------------------------------------------------------------*/
@@ -56,7 +56,7 @@ typedef struct {
     Phase phase;
     uint start_row;
     uint end_row;
-} Job
+} Job;
 /*--------------------------------------------------------------------------------
 								  Defines & Macros
 --------------------------------------------------------------------------------*/
@@ -66,7 +66,7 @@ typedef struct {
 #define DEF_RESULTS_FILE_NAME "results.csv" // The filename of the results 
 
 // Macros - For your comfort
-#define DEBUG 0
+#define DEBUG 1
 #define DEBUG_MES(mes) if(DEBUG) cout << mes << endl;
 #define user_error(mes,exp) if(!exp){cerr << "Fatal: " <<  mes << endl; exit(1);}
 

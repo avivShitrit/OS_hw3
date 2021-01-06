@@ -5,60 +5,53 @@
 #include "Barrier.hpp"
 #include <pthread.h>
 
-Barrier::Barrier(unsigned int num_of_threads) : N(num_of_threads) {
-    counter = 0;
-    pthread_mutex_init(&lock, nullptr);
-    sem_init(&barrier, 0, 0);
-    sem_init(&checkpoint, 0, N);
+Barrier::Barrier(unsigned int num_of_threads) : num_of_threads(num_of_threads) {
+    this->counter = 0;
+    this->init_locks();
 }
+
 
 void Barrier::increase() {
-    sem_wait(&checkpoint);
-    pthread_mutex_lock(&lock);
-    counter += 1;
-    pthread_mutex_unlock(&lock);
+    DEBUG_MES("increase Locking mutex")
+    pthread_mutex_lock(&this->mut_lock);
+    DEBUG_MES("increase Counter++")
+    this->counter++;
+    pthread_mutex_unlock(&this->mut_lock);
+    DEBUG_MES("increase Mutex unlocked")
 }
 
-void Barrier::decrease() {
-    pthread_mutex_lock(&lock);
-    counter -= 1;
-    pthread_mutex_unlock(&lock);
-    sem_post(&barrier);
+void Barrier::decrease(){
+    DEBUG_MES("decrease Locking mutex")
+    pthread_mutex_lock(&this->mut_lock);
+    DEBUG_MES("increase Counter--")
+    this->counter--;
+    pthread_mutex_unlock(&this->mut_lock);
+    DEBUG_MES("decrease Mutex unlocked")
+    DEBUG_MES("decrease Signaling to condition")
+    pthread_cond_broadcast(&this->cond_var);
 }
 
 void Barrier::wait() {
-    // todo: finish
-    while (counter != 0) {
-        sem_wait(&barrier);
-        sem_post(&checkpoint);
+    pthread_mutex_lock(&this->mut_lock);
+    DEBUG_MES("wait check counter")
+    while(this->counter > 0) {
+        DEBUG_MES("wait counter > 0")
+        pthread_cond_wait(&this->cond_var,&this->mut_lock);
+        DEBUG_MES("wait got signal")
     }
-    sem_post(&barrier);
-
-
-//    pthread_mutex_lock(&lock);
-//    counter += 1;
-//    if (counter == N) { //maybe while ?
-//        sem_wait(&checkpoint);
-//        sem_wait(&barrier);
-//    }
-//    pthread_mutex_unlock(&lock);
-//    sem_wait(&barrier);
-//    sem_post(&checkpoint);
-//
-//    pthread_mutex_lock(&lock);
-//    counter -= 1;
-//    if (counter == 0) {
-//        sem_wait(&barrier);
-//        sem_post(&checkpoint);
-//    }
-//    pthread_mutex_unlock(&lock);
-//
-//    sem_wait(&checkpoint);
-//    sem_post(&checkpoint);
+    DEBUG_MES("wait unlocking mutex counter")
+    pthread_mutex_unlock(&this->mut_lock);
 }
 
+
 Barrier::~Barrier() {
-    pthread_mutex_destroy(&lock);
-    sem_destroy(&barrier);
-    sem_destroy(&checkpoint);
+    pthread_mutex_destroy(&this->mut_lock);
+    pthread_cond_destroy(&this->cond_var);
+}
+
+void Barrier::init_locks() {
+    this->mut_lock = PTHREAD_MUTEX_INITIALIZER;
+    this->cond_var = PTHREAD_COND_INITIALIZER;
+    pthread_mutex_init(&this->mut_lock, nullptr);
+    pthread_cond_init(&this->cond_var, nullptr);
 }

@@ -73,6 +73,7 @@ void PCQueue<T>::push(const T &item) {
     while (producers_inside + consumers_inside > 0) {
         pthread_cond_wait(&producer_allowed, &global_lock);
     }
+    producers_waiting--;
     producers_inside++;
 
     items.push(item);
