@@ -29,7 +29,7 @@ void GameThread::thread_workload() {
         if (curr_job.phase == PHASE1) {
             phase1ExecuteJob(curr_job);
         } else if (curr_job.phase == PHASE2) {
-            // if alive find species - calc species- round(max(average species))
+            phase2ExecuteJob(curr_job);
         }
         barrier->decrease();
     }
@@ -40,16 +40,17 @@ void GameThread::phase1ExecuteJob(Job job) {
     int n = field[0].size();
     for (int i = job.start_row; i < job.end_row; ++i) {
         for (int j = 0; j < n; ++j) {
+            map<int, int> neighbours;
+            getCellNeighbours(i, j, neighbours, job);
             if (field[i][j] == DEAD) {
-                map<int, int> neighbours;
-                if (isCellBroughtToLife(i, j, neighbours, job)) {
+                if (isCellBorne(neighbours)) {
                     setCellSpecie(i, j, neighbours);
                 } else {
                     setCellDead(i, j);
                 }
             } else {
-                if (doesCellStayAlive(i, j)) {
-                    setCellNewSpecie(i, j);
+                if (doesCellStayAlive(neighbours)) {
+                    setCellAlive(i, j);
                 } else {
                     setCellDead(i, j);
                 }
@@ -59,29 +60,30 @@ void GameThread::phase1ExecuteJob(Job job) {
 }
 
 void GameThread::phase2ExecuteJob(Job job) {
-
-}
-
-bool GameThread::isCellBroughtToLife(int row, int col, map<int, int> &neighbours, Job &job) {
-    for (int i = row - 1; i <= i + 1; ++i) {
-        for (int j = col - 1; j <= j + 1; ++j) {
-            if (isInBounds(job.start_row, job.end_row, (**curr)[0].size(), i, j)) {
-                int specie = (**curr)[i][j];
-                if (neighbours.count(specie) > 0) {
-                    neighbours[specie] += 1;
-                } else {
-                    neighbours.insert({specie, 1});
-                }
+    int_mat field = **curr;
+    int n = field[0].size();
+    for (int i = job.start_row; i < job.end_row; ++i) {
+        for (int j = 0; j < n; ++j) {
+            map<int, int> neighbours;
+            getCellNeighbours(i, j, neighbours, job);
+            if (field[i][j] != DEAD) {
+                setCellNewSpecie(i, j, neighbours);
             }
         }
     }
-    if (neighbours.size() >= 3) {
+}
+
+bool GameThread::isCellBorne(map<int, int> &neighbours) {
+    if (neighbours.size() == 3) {
         return true;
     }
     return false;
 }
 
-bool GameThread::doesCellStayAlive(int i, int j) {
+bool GameThread::doesCellStayAlive(map<int, int> &neighbours) {
+    if (neighbours.size() == 2 || neighbours.size() == 3) {
+        return true;
+    }
     return false;
 }
 
@@ -97,12 +99,38 @@ void GameThread::setCellSpecie(int i, int j, map<int, int> &neighbours) {
     (**next)[i][j] = dominant_specie;
 }
 
-void GameThread::setCellNewSpecie(int i, int j) {
-
+void GameThread::setCellNewSpecie(int i, int j, map<int, int> &neighbours) {
+    int new_specie = (**curr)[i][j];
+    int total_num_neighbours = 1;
+    for (auto species : neighbours) {
+        new_specie += (species.first * species.second);
+        total_num_neighbours += species.second;
+    }
+    new_specie = (new_specie / total_num_neighbours); //todo: round always down?
+    (**next)[i][j] = new_specie;
 }
 
 void GameThread::setCellDead(int i, int j) {
     (**next)[i][j] = DEAD;
+}
+
+void GameThread::getCellNeighbours(int row, int col, map<int, int> &neighbours, Job &job) {
+    for (int i = row - 1; i <= i + 1; ++i) {
+        for (int j = col - 1; j <= j + 1; ++j) {
+            if (isInBounds(job.start_row, job.end_row, (**curr)[0].size(), i, j)) {
+                int specie = (**curr)[i][j];
+                if (neighbours.count(specie) > 0) {
+                    neighbours[specie] += 1;
+                } else {
+                    neighbours.insert({specie, 1});
+                }
+            }
+        }
+    }
+}
+
+void GameThread::setCellAlive(int i, int j) {
+    (**next)[i][j] = (**curr)[i][j];
 }
 
 

@@ -60,10 +60,12 @@ private:
     void phase1ExecuteJob(Job job);
     void phase2ExecuteJob(Job job);
 
-    bool isCellBroughtToLife(int row, int col, map<int, int> &neighbours, Job &job);
-    bool doesCellStayAlive(int i, int j);
+    void getCellNeighbours(int row, int col, map<int, int> &neighbours, Job &job);
+    bool isCellBorne(map<int, int> &neighbours);
+    bool doesCellStayAlive(map<int, int> &neighbours);
     void setCellSpecie(int i, int j, map<int, int> &neighbours);
-    void setCellNewSpecie(int i, int j);
+    void setCellNewSpecie(int i, int j, map<int, int> &neighbours);
+    void setCellAlive(int i, int j);
     void setCellDead(int i, int j);
 };
 
