@@ -12,7 +12,7 @@ void Game::run() {
 		_step(i); // Iterates a single generation 
 		auto gen_end = std::chrono::system_clock::now();
 		m_gen_hist.push_back((double)std::chrono::duration_cast<std::chrono::microseconds>(gen_end - gen_start).count());
-		print_board(nullptr);
+		print_board(nullptr); //todo: need to pass board
 	} // generation loop
 	print_board("Final Board");
 	_destroy_game();
