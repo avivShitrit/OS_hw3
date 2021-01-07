@@ -5,8 +5,8 @@
 
 #define DEAD 0
 
-bool isInBounds(int start_row, int end_row, int columns, int i, int j) {
-    if (i < 0 || i < start_row || i >= end_row || j < 0 || j >= columns) {
+bool isInBounds(int rows, int columns, int i, int j) {
+    if (i < 0 || i >= rows || j < 0 || j >= columns) {
         return false;
     }
     return true;
@@ -95,7 +95,11 @@ bool GameThread::isCellBorne(map<int, int> &neighbours) {
 }
 
 bool GameThread::doesCellStayAlive(map<int, int> &neighbours) {
-    if (neighbours.size() == 2 || neighbours.size() == 3) {
+    int num_of_neighbors = 0;
+    for (auto n : neighbours) {
+        num_of_neighbors += n.second;
+    }
+    if (num_of_neighbors == 2 || num_of_neighbors == 3) {
         return true;
     }
     return false;
@@ -131,8 +135,9 @@ void GameThread::setCellDead(int i, int j) {
 void GameThread::getCellNeighbours(int row, int col, map<int, int> &neighbours, Job &job) {
     for (int i = row - 1; i <= row + 1; ++i) {
         for (int j = col - 1; j <= col + 1; ++j) {
-            if (isInBounds(job.start_row, job.end_row, (**this->curr)[0].size(), i, j)) {
+            if (isInBounds((**this->curr).size(), (**this->curr)[0].size(), i, j)) {
                 int specie = (**this->curr)[i][j];
+                if (specie == DEAD || (i == row && j == col)) continue;
                 if (neighbours.count(specie) > 0) {
                     neighbours[specie] += 1;
                 } else {

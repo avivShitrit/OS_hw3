@@ -29,11 +29,21 @@ public:
         this->print_board(header);
         this->_destroy_game();
     }
+    void test_n_rounds(int n) {
+        this->_init_game();
+        for (int i = 0; i < n; ++i) {
+            this->_step(1);
+            string header = "Round" + std::to_string(i);
+            this->print_board(header.c_str());
+        }
+        this->_destroy_game();
+    }
 };
 
 int main(){
-    string file_name = "/Users/adinakatz/Documents/OneDrive - Technion/semester_5/OS/hw3/wet3/Tools/example_IO_files/tiny.txt";
-    game_params params = {1, 1, file_name, true, true};
+    string file_name = "/home/student/CLionProjects/OS_hw3/Tools/example_IO_files/my_test.txt";
+    game_params params = {1, 10, file_name, true, true};
     GameTester game_tester(params);
-    game_tester.test_one_round();
+//    game_tester.test_one_round();
+    game_tester.test_n_rounds(10);
 }

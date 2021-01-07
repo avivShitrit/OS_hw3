@@ -70,6 +70,8 @@ void Game::_step(uint curr_gen) {
 
     /** 2. init phase2 **/
     std::swap(this->curr, this->next);
+    print_board("end phase 1");
+    this->next->assign(this->num_of_rows, vector<uint>(this->num_of_columns, 0));
     jobs.clear();
     i=0;
     for(; i < this->num_of_rows - job_size; i += job_size){
@@ -86,6 +88,7 @@ void Game::_step(uint curr_gen) {
     DEBUG_MES("_step: PHASE2 - Queue is empty and all jobs finished This generation is over")
 
     std::swap(this->curr, this->next);
+    this->next->assign(this->num_of_rows, vector<uint>(this->num_of_columns, 0));
 }
 
 void Game::_destroy_game(){
